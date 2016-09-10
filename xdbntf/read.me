@@ -1,0 +1,42 @@
+#################################################################
+
+This folder contains code to generate a Linux* kernel module to
+notify the Intel(R) System Debugger to enable Linux* kernel module 
+debugging.
+
+For generation simply transfer these files to your target system
+and invoke make. This will generate the kernel object 'xdbntf.ko'.
+
+To enable module debugging this object has to be loaded prior to
+the load of the module to be debugged via the command 
+'insmod xdbntf.ko'. After finishing the debug session, the module 
+can be unloaded by 'rmmod xdbntf'.
+
+#################################################################
+
+Android*-specific instructions:
+
+Android* uses a different build system that a generic Linux*, and care must be taken that modules are compiled with the correct toolchain.  The makefile included here has conditional logic that will call the correct commands when invoked within the Android* build system.  This can be used to build the module either "out-of-tree" i.e. standalone or "in-tree" as part of a full Android* build.  The second method is preferred.
+
+Instructions for an "out-of-tree" build:
+download & setup the Android* source tree
+open a shell and cd to the root of the Android* source tree
+> source build/envsetup.sh
+> lunch
+cd to the directory containing this driver
+> make
+
+This should produce a module called "xdbntf.ko" in your driver source directory.  This can be copied to your device and loaded using "insmod"
+
+*Important* by default the Android* kernel will not allow you to load a driver which has a different "vermagic" than the installed kernel.  The Android* version of "insmod" does *not* support the "-f" parameter to force a non-matching driver to load.
+
+Instructions for an "in-tree" build:
+copy the xdbntf directory to <androidroot>/hardware/intel/linux-2.6/drivers/xdbntf
+edit <androidroot>/hardware/intel/Linux-2.6/drivers/Makefile to include the line "obj-y += xdbntf/"
+build Android* using the regular method.
+
+This will produce a module called "xdbntf.ko" that will automatically be included in your device image in the kernel modules directory, but it is *not* loaded by default.  This module can be loaded using "insmod".
+
+This recipe has been tested using the "IceCream Sandwich" Android* sources used by Intel on the Medfield platform in March of 2012.  Other source trees and/or versions may require adjustments.
+
+#################################################################
